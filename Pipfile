@@ -11,7 +11,9 @@ gunicorn = "*"
 django-heroku = "*"
 django-cors-headers = "*"
 drf-yasg = "*"
-django-rest-framework = "*"
+pyaescrypt = "*"
+firebase-admin = "*"
+djangorestframework = "==3.11.0"
 
 [requires]
 python_version = "3.8"
