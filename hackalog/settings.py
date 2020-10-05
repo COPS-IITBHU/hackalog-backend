@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import django_heroku
+import firebase_admin
 import os
+import pyAesCrypt
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -148,3 +150,17 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
+
+# Firebase Credentials
+with open('firebase_admin.aes', 'rb') as encrypted_file:
+    with open('firebase_admin.json', 'wb') as decrypted_file:
+        pyAesCrypt.decryptStream(
+            encrypted_file,
+            decrypted_file,
+            os.environ.get('FIREBASE_DECRYPT_KEY'),
+            64*1024,
+            int(os.environ.get('FIREBASE_DECRYPT_SIZE'))
+        )
+
+credentials = firebase_admin.credentials.Certificate(os.path.join(BASE_DIR, 'firebase_admin.json'))
+default_app = firebase_admin.initialize_app(credentials)
