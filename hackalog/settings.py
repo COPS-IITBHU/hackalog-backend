@@ -163,4 +163,4 @@ with open('firebase_admin.aes', 'rb') as encrypted_file:
         )
 
 credentials = firebase_admin.credentials.Certificate(os.path.join(BASE_DIR, 'firebase_admin.json'))
-default_app = firebase_admin.initialize_app(credentials)
+firebase_admin.initialize_app(credentials)
