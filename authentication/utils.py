@@ -3,42 +3,10 @@ from rest_framework.status import HTTP_422_UNPROCESSABLE_ENTITY, HTTP_400_BAD_RE
 from rest_framework.exceptions import ValidationError
 
 class Profile:
-    dept_list = {
-        'bce': 'Biochemical Engineering',
-        'bme': 'Biomedical Engineering',
-        'cer': 'Ceramic Engineering',
-        'che': 'Chemical Engineering',
-        'chy': 'Chemistry',
-        'civ': 'Civil Engineering',
-        'cse': 'Computer Science and Engineering',
-        'ece': 'Electronics Engineering',
-        'eee': 'Electrical Engineering',
-        'mat': 'Mathematics and Computing',
-        'mec': 'Mechanical Engineering',
-        'met': 'Metallurgical Engineering',
-        'min': 'Mining Engineering',
-        'mst': 'Materials Science and Technology',
-        'phe': 'Pharmaceutical Engineering and Technology',
-        'phy': 'Physics',
-        'hss': 'Humanistic Studies'
-    }
-
-    @classmethod
-    def get_department_code(cls, email):
-        username = email.split('@')[0]
-        dept_code = username.split('.')[-1][:3]
-        return dept_code
-
     @classmethod
     def verify_email(cls, email):
         username = email.split('@')[0]
-        domain = email.split('@')[1]
-        if domain not in ['itbhu.ac.in', 'iitbhu.ac.in']:
-            return False
         if '.' not in username:
-            return False
-        dept_code = cls.get_department_code(email)
-        if dept_code not in cls.dept_list:
             return False
         return True
 
