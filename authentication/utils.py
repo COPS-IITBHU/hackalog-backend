@@ -2,14 +2,6 @@ from firebase_admin import auth
 from rest_framework.status import HTTP_422_UNPROCESSABLE_ENTITY, HTTP_400_BAD_REQUEST
 from rest_framework.exceptions import ValidationError
 
-class Profile:
-    @classmethod
-    def verify_email(cls, email):
-        username = email.split('@')[0]
-        if '.' not in username:
-            return False
-        return True
-
 class FirebaseAPI:
     @classmethod
     def verify_id_token(cls, id_token):
