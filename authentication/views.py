@@ -17,9 +17,9 @@ class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self,request):
-        self.serializer = self.get_serializer(data=request.data)
-        self.serializer.is_valid(raise_exception=True)
-        user = self.serializer.validated_data['user']
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
         token = create_auth_token(user)
         response = ResponseSerializer({'token':token})
         return Response(response.data,status.HTTP_200_OK)

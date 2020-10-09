@@ -11,8 +11,11 @@ class LoginSerializer(serializers.Serializer):
     id_token = serializers.CharField(max_length=2400)
 
     def validate_access_token(self, access_token):
-        return FirebaseAPI.verify_id_token(access_token)
-
+        try:
+            return FirebaseAPI.verify_id_token(access_token)
+        except:
+            return serializers.ValidationError("Invalid Firebase Token")
+            
     def validate(self, data):
         id_token = data.get('id_token', None)
         user = None
