@@ -14,7 +14,7 @@ class LoginSerializer(serializers.Serializer):
         try:
             return FirebaseAPI.verify_id_token(access_token)
         except:
-            return serializers.ValidationError("Invalid Firebase Token")
+            raise serializers.ValidationError("Invalid Firebase Token")
 
     def validate(self, data):
         id_token = data.get('id_token', None)
