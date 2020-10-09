@@ -7,7 +7,6 @@ from rest_framework.authtoken.models import Token
 from .serializers import (LoginSerializer, ResponseSerializer)
 
 def create_auth_token(user):
-    # pylint: disable=no-member
     token, _ = Token.objects.get_or_create(user=user)
     return token
 

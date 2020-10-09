@@ -15,27 +15,24 @@ class LoginSerializer(serializers.Serializer):
             return FirebaseAPI.verify_id_token(access_token)
         except:
             return serializers.ValidationError("Invalid Firebase Token")
-            
+
     def validate(self, data):
         id_token = data.get('id_token', None)
         user = None
         jwt = self.validate_access_token(id_token)
         uid = jwt['uid']
-        # pylint: disable=no-member
         profile = UserProfile.objects.filter(uid=uid)
 
         if profile:
             user = profile[0].user
         else:
             email = jwt['email']
-            name = jwt['name']
             user = User()
             user.username = jwt['uid']
             user.email = email
             user.save()
-            user = user
             profile = UserProfile.objects.create(
-                uid=uid, user=user, name=name, email=email)
+                user=user, email=email)
 
         data['user'] = user
         return data
