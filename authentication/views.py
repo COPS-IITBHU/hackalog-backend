@@ -4,7 +4,8 @@ from rest_framework import status
 from .models import UserProfile, User
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .serializers import (LoginSerializer, ResponseSerializer)
+from .serializers import (
+    LoginSerializer, ResponseSerializer, ProfileSerializer)
 
 def create_auth_token(user):
     token, _ = Token.objects.get_or_create(user=user)
@@ -22,3 +23,10 @@ class LoginView(generics.GenericAPIView):
         token = create_auth_token(user)
         response = ResponseSerializer({'token':token})
         return Response(response.data,status.HTTP_200_OK)
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ProfileSerializer
+
+    def get_object(self):
+        return UserProfile.objects.get(user.request.user)

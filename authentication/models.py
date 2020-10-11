@@ -7,6 +7,10 @@ class UserProfile(models.Model):
   user = models.OneToOneField(User, on_delete=models.CASCADE)
   name=models.CharField(max_length=255)
   email=models.EmailField(max_length=255)
+  college = models.CharField(max_length=255)
+  github_handle = models.CharField(max_length=255,blank=True)
+  bio = models.CharField(max_length=255,blank=True)
+  interests = models.CharField(max_length=255,blank=True)
 
   def __str__(self):
     return self.name

@@ -36,3 +36,23 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
+
+class ProfileSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        name = validated_data['name']
+        college = validated_data['college']
+        github_handle = validated_data['github_handle']
+        bio = validated_data['bio']
+        interests = validated_data['interests']
+        instance.name = name
+        instance.college = college
+        instance.github_handle = github_handle
+        instance.bio = bio
+        instance.interests = interests
+        instance.save()
+        return instance
+
+    class Meta:
+        model = UserProfile
+        read_only_fields = ('uid', 'email')
+        fields = ('uid', 'name', 'email', 'college', 'github_handle', 'bio', 'interests')
