@@ -18,23 +18,24 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         id_token = data.get('id_token', None)
-        user = None
+        current_user = None
         jwt = self.validate_access_token(id_token)
         uid = jwt['uid']
         profile = UserProfile.objects.filter(uid=uid)
 
         if profile:
-            user = profile[0].user
+            current_user = profile[0].user
         else:
             email = jwt['email']
+            name = jwt['name']
             user = User()
-            user.username = jwt['uid']
             user.email = email
             user.save()
+            current_user = user
             profile = UserProfile.objects.create(
-                user=user, email=email)
+                uid=uid, user=user, name=name, email=email)
 
-        data['user'] = user
+        data['user'] = current_user
         return data
 
 class ProfileSerializer(serializers.ModelSerializer):

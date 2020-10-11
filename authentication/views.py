@@ -29,4 +29,5 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
 
     def get_object(self):
-        return UserProfile.objects.get(user.request.user)
+        return UserProfile.objects.get(user = self.request.user)
+        
