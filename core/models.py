@@ -35,8 +35,8 @@ class Hackathon(models.Model):
     time = models.TimeField(auto_now_add=False)
     image = models.CharField(null=True, blank=True, max_length=200)
     organizers = models.ForeignKey(UserProfile, null=True, on_delete=models.SET_NULL, related_name="hackathon_organizer")
-    result = 1  # to be decided(Later).
-    status = models.CharField(choices=HACKATHON_STATUS_CHOICES, max_length=1)
+    status = models.CharField(choices=HACKATHON_STATUS_CHOICES, max_length=1),
+    max_team_size = models.IntegerField(default=10)
 
     def __str__(self):
         return self.title
@@ -46,7 +46,7 @@ class Team(models.Model):
     """
       A model representing a team.
       `
-        name = models.CharField(required=True, max_length=50, validators=[unique_team_name_in_hackathon])
+        name = models.CharField(required=True, max_length=50)
         leader = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
         hackathon = models.ForeignKey(Hackathon, on_delete=models.CASCADE)
         team_id = models.CharField(required=True, max_length=50) # to be decided for making unique team ids.
@@ -71,9 +71,9 @@ class Link(models.Model):
       `
     """
     location = models.CharField(max_length=200)
-
+    title = models.CharField(default="No title provided.", max_length=50)
     def __str__(self):
-        pass
+        return self.title
 
 
 class Submission(models.Model):
