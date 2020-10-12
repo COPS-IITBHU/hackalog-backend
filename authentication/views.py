@@ -30,4 +30,3 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return UserProfile.objects.get(user = self.request.user)
-        

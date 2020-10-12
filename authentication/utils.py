@@ -24,4 +24,3 @@ class FirebaseAPI:
     @classmethod
     def delete_user_by_uid(cls, uid):
         auth.delete_user(uid) 
-        

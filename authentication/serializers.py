@@ -11,10 +11,7 @@ class LoginSerializer(serializers.Serializer):
     id_token = serializers.CharField(max_length=2400)
 
     def validate_access_token(self, access_token):
-        try:
-            return FirebaseAPI.verify_id_token(access_token)
-        except:
-            raise serializers.ValidationError("Invalid Firebase Token")
+        return FirebaseAPI.verify_id_token(access_token)
 
     def validate(self, data):
         id_token = data.get('id_token', None)
@@ -30,6 +27,7 @@ class LoginSerializer(serializers.Serializer):
             name = jwt['name']
             user = User()
             user.email = email
+            user.username = jwt['uid']
             user.save()
             current_user = user
             profile = UserProfile.objects.create(
@@ -39,21 +37,6 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 class ProfileSerializer(serializers.ModelSerializer):
-    def update(self, instance, validated_data):
-        name = validated_data['name']
-        college = validated_data['college']
-        github_handle = validated_data['github_handle']
-        bio = validated_data['bio']
-        interests = validated_data['interests']
-        instance.name = name
-        instance.college = college
-        instance.github_handle = github_handle
-        instance.bio = bio
-        instance.interests = interests
-        instance.save()
-        return instance
-
     class Meta:
         model = UserProfile
-        read_only_fields = ('uid', 'email')
-        fields = ('uid', 'name', 'email', 'college', 'github_handle', 'bio', 'interests')
+        fields = ('uid', 'name','handle', 'college', 'github_handle', 'bio', 'interests')
