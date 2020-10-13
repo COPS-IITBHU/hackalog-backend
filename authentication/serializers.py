@@ -28,8 +28,7 @@ class LoginSerializer(serializers.Serializer):
         else:
             email = jwt['email']
             name = jwt['name']
-            username = jwt['uid']
-            profile = User.objects.create(uid = uid,name = name, username = username, email = email)
+            profile = User.objects.create(uid = uid,name = name, email = email)
             current_user = profile
 
         data['profile'] = current_user
@@ -45,4 +44,4 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         User = get_user_model()
         model = User
-        fields = ('name','username', 'college', 'github_handle', 'bio', 'interests')
+        fields = ('uid','name','username', 'college', 'github_handle', 'bio', 'interests')
