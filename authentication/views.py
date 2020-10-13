@@ -2,6 +2,7 @@ from rest_framework import permissions
 from rest_framework import generics
 from rest_framework import status
 from .models import User
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.conf import settings
@@ -33,3 +34,14 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         User = get_user_model()
         return User.objects.get(username = self.request.user.get_username())
+
+class ProfileRetrieveView(generics.RetrieveAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    User = get_user_model()
+    queryset = User.objects.all()
+    serializer_class = ProfileSerializer
+
+    def get_object(self, handle):
+        profile = User.get_object_or_404(handle=handle)
+        response = ProfileSerializer(profile)
+        return Response(response.data, status.HTTP_200_OK)

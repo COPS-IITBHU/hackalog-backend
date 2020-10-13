@@ -20,24 +20,29 @@ class LoginSerializer(serializers.Serializer):
         id_token = data.get('id_token', None)
         current_user = None
         jwt = self.validate_access_token(id_token)
-        username = jwt['uid']
-        profile = User.objects.filter(username=username)
+        uid = jwt['uid']
+        profile = User.objects.filter(uid=uid)
 
         if profile:
             current_user = profile[0]
         else:
             email = jwt['email']
             name = jwt['name']
-            profile = User.objects.create(name = name, username = username, email = email)
+            username = jwt['uid']
+            profile = User.objects.create(uid = uid,name = name, username = username, email = email)
             current_user = profile
 
         data['profile'] = current_user
         return data
 
 class ProfileSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        username = validated_data['username']
+        instance.username = username
+        instance.save()
+        return instance
+
     class Meta:
         User = get_user_model()
         model = User
-        read_only_fields = (
-            'id', 'email', 'username')
-        fields = ('username', 'name','handle', 'college', 'github_handle', 'bio', 'interests')
+        fields = ('name','username', 'college', 'github_handle', 'bio', 'interests')

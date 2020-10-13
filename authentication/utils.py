@@ -8,7 +8,7 @@ class FirebaseAPI:
         try:
             decoded_token = auth.verify_id_token(id_token)
             return decoded_token
-        except ValueError:
+        except:
             raise ValidationError('Invalid Firebase ID Token.', HTTP_422_UNPROCESSABLE_ENTITY)
 
     @classmethod
