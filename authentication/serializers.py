@@ -29,6 +29,7 @@ class LoginSerializer(serializers.Serializer):
             email = jwt['email']
             name = jwt['name']
             profile = User.objects.create(name = name, username = username, email = email)
+            current_user = profile
 
         data['profile'] = current_user
         return data
