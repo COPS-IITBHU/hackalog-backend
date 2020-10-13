@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
   uid = models.CharField(primary_key=True, max_length=64)
-  username = models.CharField(unique=True, max_length=64)
+  username = models.CharField(unique=True, blank=True, max_length=64)
   name=models.CharField(max_length=255)
   college = models.CharField(max_length=255)
   github_handle = models.CharField(max_length=255,blank=True)
@@ -15,4 +15,4 @@ class User(AbstractUser):
   REQUIRED_FIELDS = ['username']
 
   def __str__(self):
-    return self.name
+    return self.uid
