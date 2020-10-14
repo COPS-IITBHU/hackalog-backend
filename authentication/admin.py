@@ -18,6 +18,5 @@ class MyUserAdmin(UserAdmin):
         }),
     )
     list_display = ('uid', 'username', 'github_handle', 'name', 'email', 'is_staff')
-    list_filter = ('college', 'is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('username', 'github_handle', 'name', 'email')
 admin.site.register(User, MyUserAdmin)
