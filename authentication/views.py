@@ -1,11 +1,8 @@
 from rest_framework import permissions
 from rest_framework import generics
 from rest_framework import status
-from .models import User
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from .serializers import (
     LoginSerializer, ResponseSerializer, ProfileSerializer)
