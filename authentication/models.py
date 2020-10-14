@@ -6,9 +6,9 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
   with open('authentication/college_list.json') as f:
         college_json = json.load(f)
-        COLLEGE_NAME = [(college["name"], college["name"]) for college in college_json]
+        COLLEGE_NAMES = [(college["name"], college["name"]) for college in college_json]
 
-  college = models.CharField(choices=COLLEGE_NAME, max_length=255)
+  college = models.CharField(choices=COLLEGE_NAMES, max_length=255)
   uid = models.CharField(primary_key=True, max_length=64)
   username = models.CharField(default=None, unique=True, null=True, max_length=64)
   name=models.CharField(max_length=255)
