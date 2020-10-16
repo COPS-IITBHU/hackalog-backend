@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 from django.core.exceptions import ValidationError
-
+from .models import Team
 
 @receiver(pre_save, sender=Team)
 def unique_team_name_in_hackathon(sender, instance, *args, **kwargs):
