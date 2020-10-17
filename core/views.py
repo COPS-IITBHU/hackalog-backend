@@ -39,7 +39,7 @@ class HackathonListView(generics.ListAPIView):
     List of completed Hackathons
     """
     serializer_class = HackathonSerializer
-    permissions_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         queryset = Hackathon.objects.all()
