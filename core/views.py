@@ -25,7 +25,7 @@ class HackathonTeamListView(generics.RetrieveAPIView):
     """
     permission_classes = [permissions.AllowAny]
     serializer_class = HackathonTeamListSerializer
-    lookup_field = 'id'
+    lookup_field = 'pk'
     queryset = Hackathon.objects.all()
 
 class HackathonListView(generics.ListAPIView):
