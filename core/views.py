@@ -31,5 +31,5 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     
     permission_classes = [HackathonPermissions]
     serializer_class = HackathonSerializer
-    lookup_url_kwarg = 'id'
+    lookup_field = 'pk'
     queryset = Hackathon.objects.all()
