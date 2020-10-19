@@ -5,6 +5,9 @@ import pytz
 from .models import Hackathon
 from .serializers import HackathonTeamListSerializer, HackathonTeamCreateSerializer,HackathonSerializer
 
+from .serializers import HackathonSerializer
+from .permissions import HackathonPermissions
+
 class HackathonTeamCreateView(generics.CreateAPIView):
     """
     post:
@@ -55,3 +58,20 @@ class HackathonListView(generics.ListAPIView):
             else:
                 return Response("Invalid query parameter", status.HTTP_400_BAD_REQUEST)
         return queryset
+
+class HackathonCreateView(generics.CreateAPIView):
+    '''
+    API used to create hackathon objects. Can only be accessed by the Super User
+    '''
+    serializer_class = HackathonSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
+    '''
+    API used to read, update or delete the hackathon objects by their id. Only the Super User has the permissions to update or delete hackathon objects.
+    '''
+
+    permission_classes = [HackathonPermissions]
+    serializer_class = HackathonSerializer
+    lookup_field = 'pk'
+    queryset = Hackathon.objects.all()
