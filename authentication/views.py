@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
+from drf_yasg.utils import swagger_auto_schema
+from django.utils.decorators import method_decorator
 from .serializers import (
     LoginSerializer, ResponseSerializer, ProfileSerializer)
 
@@ -32,6 +34,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         User = get_user_model()
         return User.objects.get(uid = self.request.user.uid)
 
+@method_decorator(name='get', decorator=swagger_auto_schema(operation_id='user_profile_read'))
 class UserDetail(generics.RetrieveAPIView):
     User = get_user_model()
     lookup_field = 'username'
