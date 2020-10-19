@@ -1,10 +1,11 @@
-from rest_framework import generics, status, permissions
+from rest_framework import generics, status, permissions, exceptions
 from rest_framework.response import Response
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from .models import Hackathon
-from .serializers import HackathonTeamListSerializer, HackathonTeamCreateSerializer,HackathonSerializer
-
-from .serializers import HackathonSerializer
+from .serializers import HackathonTeamListSerializer, HackathonTeamCreateSerializer, HackathonSerializer
 from .permissions import HackathonPermissions
 
 class HackathonTeamCreateView(generics.CreateAPIView):
@@ -30,6 +31,9 @@ class HackathonTeamListView(generics.RetrieveAPIView):
     lookup_field = 'pk'
     queryset = Hackathon.objects.all()
 
+query_param = openapi.Parameter('query', openapi.IN_QUERY, description="Query parameter - 'upcoming', 'ongoing' or 'completed'",
+                                type=openapi.TYPE_STRING)
+@method_decorator(name="get", decorator=swagger_auto_schema(manual_parameters=[query_param]))
 class HackathonListView(generics.ListAPIView):
     """
     Returns list of Hackathons according to query parameter.
@@ -55,7 +59,7 @@ class HackathonListView(generics.ListAPIView):
             elif(query == 'upcoming'):
                 queryset = Hackathon.objects.filter(start__gt=current_date, end__gt=current_date)
             else:
-                return Response("Invalid query parameter", status.HTTP_400_BAD_REQUEST)
+                raise exceptions.ValidationError("Invalid query parameter!")
         return queryset
 
 class HackathonCreateView(generics.CreateAPIView):
