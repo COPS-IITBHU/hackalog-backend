@@ -1,7 +1,6 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from django.utils import timezone
-import pytz
 from .models import Hackathon
 from .serializers import HackathonTeamListSerializer, HackathonTeamCreateSerializer,HackathonSerializer
 
