@@ -5,7 +5,9 @@ from django.core.validators import MaxValueValidator
 
 
 class Hackathon(models.Model):
-    """A model representing a Hackathon"""
+    """
+    A model representing a Hackathon
+    """
     title = models.CharField(max_length=100, unique=True)
     start = models.DateTimeField(auto_now_add=False)
     end = models.DateTimeField(auto_now_add=False)
@@ -19,7 +21,9 @@ class Hackathon(models.Model):
 
 
 class Team(models.Model):
-    """A model representing a participating team."""
+    """
+    A model representing a participating team.
+    """
     name = models.CharField(blank=False, null=False, max_length=50)
     leader = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="teams_as_a_leader")
@@ -37,7 +41,9 @@ class Team(models.Model):
 
 
 class Submission(models.Model):
-    """ A model representing submission for a hackthon."""
+    """
+    A model representing submission for a hackthon.
+    """
     team = models.OneToOneField(Team, on_delete=models.CASCADE)
     hackathon = models.ForeignKey(Hackathon, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now=True)
@@ -49,7 +55,9 @@ class Submission(models.Model):
 
 
 class Link(models.Model):
-    """A model to hold link for refrences and resources for a submission."""
+    """
+    A model to hold link for refrences and resources for a submission.
+    """
     url = models.URLField(max_length=200)
     title = models.CharField(default="No title provided.", max_length=100)
     submission = models.ForeignKey(

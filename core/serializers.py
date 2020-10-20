@@ -13,18 +13,6 @@ class HackathonSerializer(serializers.ModelSerializer):
         model = Hackathon
         fields = '__all__'
 
-class HackathonTeamListSerializer(serializers.ModelSerializer):
-    hackathon_teams = serializers.SerializerMethodField()
-
-    def get_hackathon_teams(self, hackathon):
-        teams = Team.objects.filter(hackathon=hackathon)
-        serializer = TeamSerializer(teams, many=True)
-        return serializer.data
-
-    class Meta:
-        model = Hackathon
-        fields = ('hackathon_teams',)
-
 class HackathonTeamCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
