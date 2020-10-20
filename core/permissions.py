@@ -17,8 +17,6 @@ class isProfileComplete(permissions.BasePermission):
     2. POST can only be accessed by users whose profile is completed
     """
     def has_permission(self, request, view):
-        if request.method == 'GET':
-            return True
         user = request.user
         if((user.username != '') and (user.email !='') and (user.name != '') and (user.college != '')
             and (user.github_handle != '') and (user.bio != '') and (user.interests != '')):
