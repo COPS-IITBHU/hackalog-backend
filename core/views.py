@@ -11,7 +11,7 @@ from .permissions import HackathonPermissions, AllowCompleteProfile
 class HackathonTeamView(generics.GenericAPIView):
     # Required for POST request
     serializer_class = HackathonTeamCreateSerializer
-    permission_classes = [AllowCompleteProfile]
+    permission_classes = [permissions.IsAuthenticated, AllowCompleteProfile]
 
     # To over-write get_queryset, removes AssertionError
     def get_queryset(self):
