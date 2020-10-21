@@ -6,12 +6,12 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team
 from .serializers import HackathonTeamCreateSerializer, HackathonSerializer, TeamSerializer
-from .permissions import HackathonPermissions, isProfileComplete
+from .permissions import HackathonPermissions, AllowCompleteProfile
 
 class HackathonTeamView(generics.GenericAPIView):
     # Required for POST request
     serializer_class = HackathonTeamCreateSerializer
-    permission_classes = [isProfileComplete]
+    permission_classes = [AllowCompleteProfile]
 
     # To over-write get_queryset, removes AssertionError
     def get_queryset(self):
@@ -40,8 +40,9 @@ class HackathonTeamView(generics.GenericAPIView):
         serializer = TeamSerializer(queryset, many=True)
         return Response(serializer.data)
 
-query_param = openapi.Parameter('query', openapi.IN_QUERY, description="Query parameter - 'upcoming', 'ongoing' or 'completed'",
-                                type=openapi.TYPE_STRING)
+query_param = openapi.Parameter(
+    'query', openapi.IN_QUERY, description="Query parameter - Returns all hackthons if not specified.",
+    type=openapi.TYPE_STRING, enum=['completed', 'upcoming', 'ongoing'])
 @method_decorator(name="get", decorator=swagger_auto_schema(manual_parameters=[query_param]))
 class HackathonListView(generics.ListAPIView):
     """

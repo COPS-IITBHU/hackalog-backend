@@ -11,7 +11,7 @@ class HackathonPermissions(permissions.BasePermission):
                 return True
             return bool(request.user and request.user.is_superuser)
 
-class isProfileComplete(permissions.BasePermission):
+class AllowCompleteProfile(permissions.BasePermission):
     """
     1. GET can be accessed even by anonymous users
     2. POST can only be accessed by users whose profile is completed
