@@ -5,57 +5,47 @@ from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team
-from .serializers import HackathonTeamCreateSerializer, HackathonSerializer, TeamSerializer
+from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer
 from .permissions import HackathonPermissions, AllowCompleteProfile
 
-class HackathonTeamView(generics.GenericAPIView):
-    # Required for POST request
-    serializer_class = HackathonTeamCreateSerializer
+class HackathonTeamView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated, AllowCompleteProfile]
 
-    # To over-write get_queryset, removes AssertionError
-    def get_queryset(self):
-        return
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TeamSerializer
+        else:
+            return TeamCreateSerializer
 
-    def post(self, request, *args, **kwargs):
-        """
-        Users with completed profile can create a team with POST request
-        """
-        if request.data['hackathon'] != kwargs['pk']:
-            raise exceptions.ValidationError("Hackathon ID does not match in URL and Request body!")
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status.HTTP_200_OK)
-
-    def get(self, request, *args, **kwargs):
-        """
-        Returns list of team registered for a hackathon
-        """
+    def get_queryset(self, **kwargs):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
         try:
-            if Hackathon.objects.get(id=kwargs['pk']) is not None:
-                queryset = Team.objects.filter(hackathon=kwargs['pk'])
-        except:
-            return Response("Hackathon does not exist!", status=status.HTTP_404_NOT_FOUND)
-        serializer = TeamSerializer(queryset, many=True)
-        return Response(serializer.data)
+            return Hackathon.objects.get(id=self.kwargs['pk'])
+        except Hackathon.DoesNotExist:
+            raise exceptions.NotFound("Hackathon does not exist!")
+        queryset = Team.objects.filter(hackathon=self.kwargs['pk'])
+        return queryset
 
 query_param = openapi.Parameter(
     'query', openapi.IN_QUERY, description="Query parameter - Returns all hackthons if not specified.",
     type=openapi.TYPE_STRING, enum=['completed', 'upcoming', 'ongoing'])
 @method_decorator(name="get", decorator=swagger_auto_schema(manual_parameters=[query_param]))
-class HackathonListView(generics.ListAPIView):
+class HackathonListCreateView(generics.ListCreateAPIView):
     """
+    get:
     Returns list of Hackathons according to query parameter.
-    ongoing:
-    List of ongoing Hackathons
-    upcoming:
-    List of upcoming Hackathons
-    completed:
-    List of completed Hackathons
+
+    post:
+    Creates a new hackathon. Only admin can create a hackathon
     """
     serializer_class = HackathonSerializer
-    permission_classes = [permissions.AllowAny]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAdminUser()]
 
     def get_queryset(self):
         queryset = Hackathon.objects.all()
@@ -71,13 +61,6 @@ class HackathonListView(generics.ListAPIView):
             else:
                 raise exceptions.ValidationError("Invalid query parameter!")
         return queryset
-
-class HackathonCreateView(generics.CreateAPIView):
-    """
-    API used to create hackathon objects. Can only be accessed by the Super User
-    """
-    serializer_class = HackathonSerializer
-    permission_classes = [permissions.IsAdminUser]
 
 class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     """
