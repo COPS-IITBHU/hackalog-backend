@@ -21,7 +21,7 @@ class HackathonTeamView(generics.ListCreateAPIView):
         if getattr(self, 'swagger_fake_view', False):
             return None
         try:
-            return Hackathon.objects.get(id=self.kwargs['pk'])
+            hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exist!")
         queryset = Team.objects.filter(hackathon=self.kwargs['pk'])
