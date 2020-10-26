@@ -3,4 +3,8 @@ from .models import Hackathon, Link, Submission, Team
 admin.site.register(Hackathon)
 admin.site.register(Link)
 admin.site.register(Submission)
-admin.site.register(Team)
+
+class TeamsPageAdmin(admin.ModelAdmin):
+    list_display = ('name','hackathon',)
+
+admin.site.register(Team, TeamsPageAdmin)

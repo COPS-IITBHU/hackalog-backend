@@ -29,8 +29,7 @@ class Team(models.Model):
         User, on_delete=models.CASCADE, related_name="teams_as_a_leader")
     hackathon = models.ForeignKey(
         Hackathon, on_delete=models.CASCADE, related_name="participating_teams")
-    # to be decided for making unique team ids.
-    team_id = models.CharField(blank=False, null=False, max_length=50)
+    team_id = models.CharField(max_length=16, unique=True)
     members = models.ManyToManyField(User, related_name="teams_as_a_member")
 
     class Meta:

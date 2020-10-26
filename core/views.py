@@ -5,10 +5,16 @@ from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team
-from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer
+from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer
 from .permissions import HackathonPermissions, AllowCompleteProfile
 
 class HackathonTeamView(generics.ListCreateAPIView):
+    """
+    get:
+    Returns a list of teams in a particular hackathon
+    post:
+    Creates a new team in a hackathon and return the team_id
+    """
     permission_classes = [permissions.IsAuthenticated, AllowCompleteProfile]
 
     def get_serializer_class(self):
@@ -16,6 +22,11 @@ class HackathonTeamView(generics.ListCreateAPIView):
             return TeamSerializer
         else:
             return TeamCreateSerializer
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'kwargs': self.kwargs
+        }
 
     def get_queryset(self, **kwargs):
         if getattr(self, 'swagger_fake_view', False):
@@ -26,6 +37,31 @@ class HackathonTeamView(generics.ListCreateAPIView):
             raise exceptions.NotFound("Hackathon does not exist!")
         queryset = Team.objects.filter(hackathon=self.kwargs['pk'])
         return queryset
+
+    def post(self, request, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        team = serializer.save()
+        serializer = TeamSerializer(team)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class JoinTeamView(generics.GenericAPIView):
+    """
+    patch:
+    Join a team with team_id and hackathon_id
+    """
+    serializer_class = JoinTeamSerializer
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'kwargs': self.kwargs
+        }
+
+    def patch(self, request, **kwargs):
+        serializer = self.get_serializer()
+        serializer.join_team()
+        return Response("Successfully jonied team!",status=status.HTTP_200_OK)
 
 query_param = openapi.Parameter(
     'query', openapi.IN_QUERY, description="Query parameter - Returns all hackthons if not specified.",
