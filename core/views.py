@@ -52,6 +52,11 @@ class JoinTeamView(generics.GenericAPIView):
     """
     serializer_class = JoinTeamSerializer
 
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        pass
+
     def get_serializer_context(self):
         return {
             'request': self.request,
