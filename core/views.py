@@ -5,8 +5,9 @@ from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team
+from authentication.serializers import ProfileSerializer
 from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer
-from .permissions import HackathonPermissions, AllowCompleteProfile
+from .permissions import HackathonPermissions, AllowCompleteProfile, IsLeaderOrSuperUser
 
 class HackathonTeamView(generics.ListCreateAPIView):
     """
@@ -42,8 +43,8 @@ class HackathonTeamView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         team = serializer.save()
-        serializer = TeamSerializer(team)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        data = {"team_id": team.team_id}
+        return Response(data, status=status.HTTP_201_CREATED)
 
 class JoinTeamView(generics.GenericAPIView):
     """
@@ -112,3 +113,47 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HackathonSerializer
     lookup_field = 'pk'
     queryset = Hackathon.objects.all()
+
+class TeamView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API used to read, update or delete the Team objects by their team_id. Only the Super User has the permissions to delete Team objects.
+    """
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.IsAuthenticated()]
+        else:
+            return [permissions.IsAuthenticated(), IsLeaderOrSuperUser()]
+
+    serializer_class = TeamSerializer
+    queryset = Team.objects.all()
+    lookup_field = 'team_id'
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        leader = ProfileSerializer(instance.leader).data
+        members = ProfileSerializer(instance.members, many=True).data
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        data['leader'] = leader
+        data['members'] = members
+        return Response(data)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        leader = ProfileSerializer(instance.leader).data
+        members = ProfileSerializer(instance.members, many=True).data
+        data = serializer.data
+        data['leader'] = leader
+        data['members'] = members
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(data)
