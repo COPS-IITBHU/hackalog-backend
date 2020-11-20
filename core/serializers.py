@@ -14,10 +14,17 @@ class TeamCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         name = attrs['name']
         hackathon_id = self.context['kwargs']['pk']
+        user = self.context['request'].user
         try:
             hackathon = Hackathon.objects.get(id=hackathon_id)
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound(detail="Hackathon does not exist!")
+        try:
+            team = Team.objects.get(hackathon=hackathon, members=user)
+        except:
+            pass
+        else:
+            raise exceptions.ValidationError(detail="You are already part of a team in this hackathon.")
         try:
             team = Team.objects.get(hackathon=hackathon, name=name)
         except:
@@ -54,10 +61,14 @@ class JoinTeamSerializer(serializers.Serializer):
         except Team.DoesNotExist:
             raise exceptions.NotFound(detail="Team does not exist!")
         user = self.context['request'].user
-        members = team.members
-        if user in members.all():
-            raise exceptions.ValidationError(detail="You are already in the team!")
-        members.add(user)
+        team_qs = Team.objects.filter(hackathon=hackathon, members= user)
+        if team_qs.exists():
+            raise exceptions.ValidationError(detail="You are already part of some team in this hackathon.")
+        else:
+            members = team.members
+            if user in members.all():
+                raise exceptions.ValidationError(detail="You are already in the team!")
+            members.add(user)
 
 class HackathonSerializer(serializers.ModelSerializer):
     class Meta:
