@@ -1,7 +1,7 @@
 from rest_framework import serializers, exceptions
 from authentication.models import User
 from django.utils.crypto import get_random_string
-from .models import Hackathon, Team
+from .models import Hackathon, Team, Submission
 
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,4 +61,9 @@ class JoinTeamSerializer(serializers.Serializer):
 class HackathonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hackathon
+        fields = '__all__'
+
+class SubmissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
         fields = '__all__'

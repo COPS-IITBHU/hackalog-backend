@@ -4,8 +4,8 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import Hackathon, Team
-from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer
+from .models import Hackathon, Team, Submission
+from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer
 from .permissions import HackathonPermissions, AllowCompleteProfile
 
 class HackathonTeamView(generics.ListCreateAPIView):
@@ -112,3 +112,28 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HackathonSerializer
     lookup_field = 'pk'
     queryset = Hackathon.objects.all()
+
+class UserHackathonsView(generics.GenericAPIView):
+    """
+    API used to get the list of all the hackthons user registered for.
+    """
+    permission_classes = [HackathonPermissions]
+    
+
+class HackathonSubmissionView(generics.ListCreateAPIView):
+    """
+    API used to get the list of all the submissions of particular hackathon.
+    """
+    serializer_class = SubmissionsSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self, **kwargs):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        try:
+            hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
+        except Hackathon.DoesNotExist:
+            raise exceptions.NotFound("Hackathon does not exist!")
+        queryset = Submission.objects.filter(hackathon=self.kwargs['pk'])
+        return queryset
+
