@@ -112,12 +112,6 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HackathonSerializer
     lookup_field = 'pk'
     queryset = Hackathon.objects.all()
-
-class UserHackathonsView(generics.GenericAPIView):
-    """
-    API used to get the list of all the hackthons user registered for.
-    """
-    permission_classes = [HackathonPermissions]
     
 
 class HackathonSubmissionView(generics.ListCreateAPIView):
@@ -125,7 +119,10 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
     API used to get the list of all the submissions of particular hackathon.
     """
     serializer_class = SubmissionsSerializer
-    permission_classes = [permissions.IsAdminUser]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.IsAdminUser()]  
+        return [permissions.AllowAny()]
 
     def get_queryset(self, **kwargs):
         if getattr(self, 'swagger_fake_view', False):

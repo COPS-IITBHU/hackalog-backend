@@ -63,6 +63,23 @@ class HackathonSerializer(serializers.ModelSerializer):
         model = Hackathon
         fields = '__all__'
 
+class GetHackathonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hackathon
+        fields = ('title','status',)
+
+class GetTeamsSerializer(serializers.ModelSerializer):
+    hackathon = serializers.SerializerMethodField()
+
+    def get_hackathon(self,obj):
+        serializer = GetHackathonSerializer(obj.hackathon)
+        return serializer.data
+
+    class Meta:
+        model = Team
+        fields = ('name','score','hackathon',)
+        depth =1
+
 class SubmissionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission

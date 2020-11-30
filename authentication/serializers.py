@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .utils import FirebaseAPI
 from django.contrib.auth import get_user_model
+from core.serializers import HackathonSerializer, GetTeamsSerializer
+from core.models import Team
 
 class ResponseSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=500)
@@ -31,7 +33,14 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 class ProfileSerializer(serializers.ModelSerializer):
+    teams = serializers.SerializerMethodField()
+
+    def get_teams(self,obj):
+        team = Team.objects.filter(members=obj)
+        serializer = GetTeamsSerializer(team,many=True)
+        return serializer.data
+
     class Meta:
         User = get_user_model()
         model = User
-        fields = ('name','username', 'college', 'github_handle', 'bio', 'interests')
+        fields = ('name','username', 'college', 'github_handle', 'bio', 'interests','teams')
