@@ -6,7 +6,8 @@ from .models import Hackathon, Team
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ('team_id',)
+        exclude = ['leader', 'members']
+        depth = 1
 
 class TeamCreateSerializer(serializers.ModelSerializer):
 

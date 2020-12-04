@@ -23,3 +23,19 @@ class AllowCompleteProfile(permissions.BasePermission):
             return True
         else:
             raise exceptions.PermissionDenied("Please complete your profile!")
+
+class IsLeaderOrSuperUser(permissions.BasePermission):
+    """
+    Allows only Superusers and Creator of team to delete the team.
+    """
+    def has_permission(self, request, view):
+        if request.user and request.user.is_authenticated:
+            return True
+        else:
+            raise exceptions.NotAuthenticated("Singin is required!")
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_superuser or request.user == obj.leader:
+            return True
+        else:
+            raise exceptions.PermissionDenied("You are not team leader")
