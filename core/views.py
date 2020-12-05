@@ -6,7 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team
 from authentication.serializers import ProfileSerializer
-from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer
+from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, MemberExitSerializer
 from .permissions import HackathonPermissions, AllowCompleteProfile, IsLeaderOrSuperUser
 
 class HackathonTeamView(generics.ListCreateAPIView):
@@ -157,3 +157,25 @@ class TeamView(generics.RetrieveUpdateDestroyAPIView):
             instance._prefetched_objects_cache = {}
 
         return Response(data)
+
+class MemberExitView(generics.GenericAPIView):
+    """
+    Allows only leader to remove any team member.
+    Team members can exit but cannot remove others.
+    Leader cannot exit team. If leader wants to leave he has to delete the team.
+    """
+
+    serializer_class = MemberExitSerializer
+    queryset = Team.objects.all()
+    lookup_field = 'team_id'
+    permission_classes = [permissions.IsAuthenticated]
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'kwargs': self.kwargs
+        }
+
+    def patch(self, request, **kwargs):
+        serializer = self.get_serializer()
+        serializer.exit_team()
+        return Response("Successfully removed from the team",status=status.HTTP_200_OK)
