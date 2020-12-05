@@ -1,7 +1,9 @@
 from rest_framework import serializers, exceptions
-from authentication.models import User
+from django.utils import timezone
 from django.utils.crypto import get_random_string
+
 from .models import Hackathon, Team
+from authentication.models import User
 
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,6 +65,7 @@ class JoinTeamSerializer(serializers.Serializer):
         user = self.context['request'].user
         team_qs = Team.objects.filter(hackathon=hackathon, members= user)
         if team_qs.exists():
+            print('team_qs =', team_qs)
             raise exceptions.ValidationError(detail="You are already part of some team in this hackathon.")
         else:
             members = team.members
@@ -74,3 +77,29 @@ class HackathonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hackathon
         fields = '__all__'
+
+class MemberExitSerializer(serializers.Serializer):
+
+    def exit_team(self):
+        team_id = self.context['kwargs']['team_id']
+        try:
+            team = Team.objects.get(team_id=team_id)
+        except Team.DoesNotExist:
+            raise exceptions.ValidationError(detail='Team does not exists.')
+        user = self.context['request'].user  # requesting user
+        username = self.context['kwargs']['username'] # username to be removed from team
+        if (team.leader.username != username) and (user == team.leader or user.username == username):
+            hackathon = team.hackathon
+            if hackathon.start < timezone.now():
+                raise exceptions.ValidationError(detail='Cannot leave/exit team as event started.')
+            try:
+                member = User.objects.get(username=username)
+            except User.DoesNotExist:
+                raise exceptions.ValidationError(detail='No user with given username')
+            members = team.members
+            if member not in members.all():
+                raise exceptions.ValidationError(detail='Already not in team')
+            members.remove(member)
+            team.save()
+        else:
+            raise exceptions.PermissionDenied('You are not allowed to perform this operation.')
