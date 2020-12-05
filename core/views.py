@@ -130,16 +130,6 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
     """
     serializer_class = SubmissionsSerializer
 
-    def get_permissions(self):
-        return [permissions.AllowAny()]
-        # try:
-        #     hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
-        #     if self.request.method == 'GET' and hackathon.status!="Completed":
-        #         return [permissions.IsAdminUser()]
-        #     return [permissions.AllowAny()]
-        # except Hackathon.DoesNotExist:
-        #     raise exceptions.NotFound("Hackathon does not exist!")
-
     def get_queryset(self, **kwargs):
         if getattr(self, 'swagger_fake_view', False):
             return None
