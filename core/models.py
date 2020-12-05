@@ -49,6 +49,8 @@ class Team(models.Model):
 
     @property
     def score(self):
+        if(self.hackathon.status!="Completed"):
+            return "NA"
         return self.submission.score
 
     def __str__(self):
