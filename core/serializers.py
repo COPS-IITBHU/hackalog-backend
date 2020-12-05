@@ -74,6 +74,19 @@ class JoinTeamSerializer(serializers.Serializer):
             members.add(user)
 
 class HackathonSerializer(serializers.ModelSerializer):
+    def validate_end(self, end):
+        if end < timezone.now():
+            raise serializers.ValidationError('End date cannot be in past')
+        return end
+    def validate_start(self, start):
+        if start < timezone.now():
+            raise serializers.ValidationError('Start date cannot be in past')
+        return start
+    def validate(self, attrs):
+        if attrs['start'] > attrs['end']:
+            raise serializers.ValidationError('Event ends before starting')
+        return attrs
+
     class Meta:
         model = Hackathon
         fields = '__all__'
