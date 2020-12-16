@@ -1,14 +1,19 @@
 from rest_framework import serializers, exceptions
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-
-from .models import Hackathon, Team
+from .models import Hackathon, Team, Submission
 from authentication.models import User
 
 class TeamSerializer(serializers.ModelSerializer):
+    hackathon = serializers.SerializerMethodField()
+
+    def get_hackathon(self,obj):
+        serializer = HackathonSerializer(obj.hackathon)
+        return serializer.data
+
     class Meta:
         model = Team
-        exclude = ['leader', 'members']
+        fields = ('name','score','hackathon','team_id')
         depth = 1
 
 class TeamCreateSerializer(serializers.ModelSerializer):
@@ -89,8 +94,13 @@ class HackathonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hackathon
-        fields = '__all__'
+        fields = ('title','start','end','status','image','results_declared','max_team_size','slug')
 
+
+class SubmissionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = '__all__'
 class MemberExitSerializer(serializers.Serializer):
 
     def exit_team(self):

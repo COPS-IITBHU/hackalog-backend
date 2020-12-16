@@ -1,6 +1,7 @@
 from django.db import models
 from authentication.models import User
 from django.core.validators import MaxValueValidator
+from django.utils import timezone
 # Create your models here.
 
 
@@ -15,6 +16,17 @@ class Hackathon(models.Model):
     results_declared = models.BooleanField(default=False)
     max_team_size = models.IntegerField(default=10)
     slug = models.SlugField()
+
+    @property
+    def status(self):
+        current_date = timezone.now()
+        if self.start<=current_date and self.end<=current_date :
+            return "Completed"
+        elif self.start<=current_date and self.end>=current_date :
+            return "Ongoing"
+        else:
+            return "Upcoming"
+
 
     def __str__(self):
         return self.title
@@ -34,6 +46,12 @@ class Team(models.Model):
 
     class Meta:
         unique_together = ("name", "hackathon")
+
+    @property
+    def score(self):
+        if(self.hackathon.status!="Completed"):
+            return "NA"
+        return self.submission.score
 
     def __str__(self):
         return self.name

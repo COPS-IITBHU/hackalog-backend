@@ -4,10 +4,11 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import Hackathon, Team
-from authentication.serializers import ProfileSerializer
-from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, MemberExitSerializer
+from .models import Hackathon, Team, Submission
+from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer, MemberExitSerializer
 from .permissions import HackathonPermissions, AllowCompleteProfile, IsLeaderOrSuperUser
+from authentication.serializers import ProfileSerializer
+
 
 class HackathonTeamView(generics.ListCreateAPIView):
     """
@@ -23,6 +24,7 @@ class HackathonTeamView(generics.ListCreateAPIView):
             return TeamSerializer
         else:
             return TeamCreateSerializer
+
     def get_serializer_context(self):
         return {
             'request': self.request,
@@ -46,6 +48,7 @@ class HackathonTeamView(generics.ListCreateAPIView):
         data = {"team_id": team.team_id}
         return Response(data, status=status.HTTP_201_CREATED)
 
+
 class JoinTeamView(generics.GenericAPIView):
     """
     patch:
@@ -67,11 +70,14 @@ class JoinTeamView(generics.GenericAPIView):
     def patch(self, request, **kwargs):
         serializer = self.get_serializer()
         serializer.join_team()
-        return Response("Successfully jonied team!",status=status.HTTP_200_OK)
+        return Response("Successfully jonied team!", status=status.HTTP_200_OK)
+
 
 query_param = openapi.Parameter(
     'query', openapi.IN_QUERY, description="Query parameter - Returns all hackthons if not specified.",
     type=openapi.TYPE_STRING, enum=['completed', 'upcoming', 'ongoing'])
+
+
 @method_decorator(name="get", decorator=swagger_auto_schema(manual_parameters=[query_param]))
 class HackathonListCreateView(generics.ListCreateAPIView):
     """
@@ -95,14 +101,18 @@ class HackathonListCreateView(generics.ListCreateAPIView):
         current_date = timezone.now()
         if query is not None:
             if(query == 'ongoing'):
-                queryset = Hackathon.objects.filter(start__lt=current_date, end__gt=current_date)
+                queryset = Hackathon.objects.filter(
+                    start__lt=current_date, end__gt=current_date)
             elif(query == 'completed'):
-                queryset = Hackathon.objects.filter(start__lt=current_date, end__lt=current_date)
+                queryset = Hackathon.objects.filter(
+                    start__lt=current_date, end__lt=current_date)
             elif(query == 'upcoming'):
-                queryset = Hackathon.objects.filter(start__gt=current_date, end__gt=current_date)
+                queryset = Hackathon.objects.filter(
+                    start__gt=current_date, end__gt=current_date)
             else:
                 raise exceptions.ValidationError("Invalid query parameter!")
         return queryset
+
 
 class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -113,6 +123,31 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HackathonSerializer
     lookup_field = 'pk'
     queryset = Hackathon.objects.all()
+
+
+class HackathonSubmissionView(generics.ListCreateAPIView):
+    """
+    API used to get the list of all the submissions of particular hackathon.
+    """
+    serializer_class = SubmissionsSerializer
+
+    def get_queryset(self, **kwargs):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        try:
+            hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
+            user = self.request.user
+            if hackathon.status!="Completed" and not self.request.user.is_superuser:
+                try:
+                    team = Team.objects.get(members=user, hackathon= hackathon)
+                except:
+                    raise exceptions.NotFound("Team does not exist!")
+                queryset=Submission.objects.filter(team=team)
+                return queryset
+            queryset = Submission.objects.filter(hackathon=self.kwargs['pk'])
+            return queryset
+        except Hackathon.DoesNotExist:
+            raise exceptions.NotFound("Hackathon does not exist!")
 
 class TeamView(generics.RetrieveUpdateDestroyAPIView):
     """
