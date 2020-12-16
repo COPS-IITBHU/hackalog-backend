@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .utils import FirebaseAPI
 from django.contrib.auth import get_user_model
-from core.serializers import HackathonSerializer, GetTeamsSerializer
+from core.serializers import HackathonSerializer, TeamSerializer
 from core.models import Team
 
 class ResponseSerializer(serializers.Serializer):
@@ -37,7 +37,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_teams(self,obj):
         team = Team.objects.filter(members=obj)
-        serializer = GetTeamsSerializer(team,many=True)
+        serializer = TeamSerializer(team,many=True)
         return serializer.data
 
     class Meta:

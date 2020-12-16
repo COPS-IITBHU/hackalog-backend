@@ -5,9 +5,15 @@ from .models import Hackathon, Team, Submission
 from authentication.models import User
 
 class TeamSerializer(serializers.ModelSerializer):
+    hackathon = serializers.SerializerMethodField()
+
+    def get_hackathon(self,obj):
+        serializer = HackathonSerializer(obj.hackathon)
+        return serializer.data
+
     class Meta:
         model = Team
-        exclude = ['leader', 'members']
+        fields = ('name','score','hackathon','team_id')
         depth = 1
 
 class TeamCreateSerializer(serializers.ModelSerializer):
@@ -88,24 +94,8 @@ class HackathonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hackathon
-        fields = '__all__'
+        fields = ('title','start','end','status','image','results_declared','max_team_size','slug')
 
-class GetHackathonSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Hackathon
-        fields = ('title','status',)
-
-class GetTeamsSerializer(serializers.ModelSerializer):
-    hackathon = serializers.SerializerMethodField()
-
-    def get_hackathon(self,obj):
-        serializer = GetHackathonSerializer(obj.hackathon)
-        return serializer.data
-
-    class Meta:
-        model = Team
-        fields = ('name','score','hackathon',)
-        depth =1
 
 class SubmissionsSerializer(serializers.ModelSerializer):
     class Meta:
