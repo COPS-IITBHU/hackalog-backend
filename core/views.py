@@ -127,7 +127,7 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
 
 class HackathonSubmissionView(generics.ListCreateAPIView):
     """
-    API used to get the list of all the submissions of particular hackathon.
+    API used to get the list of all the submissions of particular hackathon
     and create submission for the hackathon
     """
     serializer_class = SubmissionsSerializer
@@ -167,6 +167,7 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
                 team=team, hackathon=hackathon)
             if len(submission):
                 return Response("A Submission Already Exists!", status=status.HTTP_400_BAD_REQUEST)
+            request.data['hackathon'] = self.kwargs['pk']
 
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exist!")
