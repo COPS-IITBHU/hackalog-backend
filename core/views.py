@@ -163,6 +163,10 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
             team = Team.objects.get(members=request.user, hackathon=hackathon)
             if request.data['team'] != team.pk:
                 return Response("You can make submission only for your team", status=status.HTTP_400_BAD_REQUEST)
+            submission = Submission.objects.filter(
+                team=team, hackathon=hackathon)
+            if len(submission):
+                return Response("A Submission Already Exists!", status=status.HTTP_400_BAD_REQUEST)
 
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exist!")
