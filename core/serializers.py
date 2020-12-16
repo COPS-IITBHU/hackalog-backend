@@ -101,6 +101,12 @@ class SubmissionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
         fields = '__all__'
+
+    def validate_score(self, score):
+        if score < 0:
+            raise serializers.ValidationError("Score can't be less than 0")
+        return score
+        
 class MemberExitSerializer(serializers.Serializer):
 
     def exit_team(self):
