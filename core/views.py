@@ -2,6 +2,7 @@ from rest_framework import generics, status, permissions, exceptions
 from rest_framework.response import Response
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.shortcuts import get_list_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team, Submission
@@ -226,26 +227,28 @@ class SubmissionRUDView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self, **kwargs):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        try:
-            queryset = Submission.objects.get(id=self.kwargs['id'])
-            user = self.request.user
-            hackathon = Hackathon.objects.get(id=queryset.hackathon_id)
+
+        queryset = Submission.objects.filter(id=self.kwargs['id'])
+        user = self.request.user
+        if queryset:
+            hackathon = Hackathon.objects.get(id=queryset[0].hackathon_id)
             if hackathon.status == 'Completed':
                 if self.request.method == 'GET':
-                    return Submission.objects.filter(id=self.kwargs['id'])
+                    return queryset
                 elif self.request.method == 'DELETE' or self.request.method == 'PUT' or self.request.method == 'PATCH':
                     try:
                         team = Team.objects.get(members=user, hackathon=hackathon)
-                        return Submission.objects.filter(id=self.kwargs['id'])
+                        return queryset
                     except Team.DoesNotExist:
                         raise exceptions.PermissionDenied(detail="Not the member of registered Team")
             elif hackathon.status == 'Ongoing':
                 try:
                     team = Team.objects.get(members=user, hackathon=hackathon)
-                    return Submission.objects.filter(id=self.kwargs['id'])
+                    return queryset
                 except Team.DoesNotExist:
                     raise exceptions.PermissionDenied(detail="Not the member of registered Team")
             else:
-                raise exceptions.ParseError(detail="Hackathon is not started yet")
-        except Submission.DoesNotExist:
+                raise exceptions.PermissionDenied(detail="Hackathon is not started yet")
+        else:
             raise exceptions.NotFound("Submission does not exist!")
+    
