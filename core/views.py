@@ -128,9 +128,11 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
 
 class HackathonSubmissionView(generics.ListCreateAPIView):
     """
-    API used to get the list of all the submissions of particular hackathon.
+    API used to get the list of all the submissions of particular hackathon
+    and create submission for the hackathon
     """
     serializer_class = SubmissionsSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self, **kwargs):
         if getattr(self, 'swagger_fake_view', False):
@@ -149,6 +151,36 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
             return queryset
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exist!")
+
+    def create(self, request, *args, **kwargs):
+        try:
+            hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
+            # The default score should remain zero
+            # even if user has passed any other value
+            if 'score' in request.data:
+                request.data['score'] = 0
+            if hackathon.status != "Ongoing":
+                return Response("Submissions can only be made to Ongoing Hackathons", status=status.HTTP_400_BAD_REQUEST)
+            team = Team.objects.get(members=request.user, hackathon=hackathon)
+            if request.data['team'] != team.pk:
+                return Response("You can make submission only for your team", status=status.HTTP_400_BAD_REQUEST)
+            submission = Submission.objects.filter(
+                team=team, hackathon=hackathon)
+            if len(submission):
+                return Response("A Submission Already Exists!", status=status.HTTP_400_BAD_REQUEST)
+            request.data['hackathon'] = self.kwargs['pk']
+
+        except Hackathon.DoesNotExist:
+            raise exceptions.NotFound("Hackathon does not exist!")
+        except Team.DoesNotExist:
+            raise exceptions.NotFound("Team does not exist!")
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class TeamView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -251,4 +283,3 @@ class SubmissionRUDView(generics.RetrieveUpdateDestroyAPIView):
                 raise exceptions.PermissionDenied(detail="Hackathon is not started yet")
         else:
             raise exceptions.NotFound("Submission does not exist!")
-    
