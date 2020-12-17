@@ -5,7 +5,7 @@ from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team, Submission
-from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer, MemberExitSerializer
+from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer, MemberExitSerializer, SubmissionRUDSerializer
 from .permissions import HackathonPermissions, AllowCompleteProfile, IsLeaderOrSuperUser
 from authentication.serializers import ProfileSerializer
 
@@ -214,3 +214,38 @@ class MemberExitView(generics.GenericAPIView):
         serializer = self.get_serializer()
         serializer.exit_team()
         return Response("Successfully removed from the team",status=status.HTTP_200_OK)
+
+class SubmissionRUDView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    API used to read, update and delete the particular submissions of particular hackathon.
+    """
+    serializer_class = SubmissionRUDSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_queryset(self, **kwargs):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        try:
+            queryset = Submission.objects.get(id=self.kwargs['id'])
+            user = self.request.user
+            hackathon = Hackathon.objects.get(id=queryset.hackathon_id)
+            if hackathon.status == 'Completed':
+                if self.request.method == 'GET':
+                    return Submission.objects.filter(id=self.kwargs['id'])
+                elif self.request.method == 'DELETE' or self.request.method == 'PUT' or self.request.method == 'PATCH':
+                    try:
+                        team = Team.objects.get(members=user, hackathon=hackathon)
+                        return Submission.objects.filter(id=self.kwargs['id'])
+                    except Team.DoesNotExist:
+                        raise exceptions.PermissionDenied(detail="Not the member of registered Team")
+            elif hackathon.status == 'Ongoing':
+                try:
+                    team = Team.objects.get(members=user, hackathon=hackathon)
+                    return Submission.objects.filter(id=self.kwargs['id'])
+                except Team.DoesNotExist:
+                    raise exceptions.PermissionDenied(detail="Not the member of registered Team")
+            else:
+                raise exceptions.ParseError(detail="Hackathon is not started yet")
+        except Submission.DoesNotExist:
+            raise exceptions.NotFound("Submission does not exist!")

@@ -101,6 +101,7 @@ class SubmissionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
         fields = '__all__'
+
 class MemberExitSerializer(serializers.Serializer):
 
     def exit_team(self):
@@ -126,3 +127,21 @@ class MemberExitSerializer(serializers.Serializer):
             team.save()
         else:
             raise exceptions.PermissionDenied('You are not allowed to perform this operation.')
+
+class SubmissionRUDSerializer(serializers.ModelSerializer): 
+    hackathon = serializers.SerializerMethodField()
+    team = serializers.SerializerMethodField()
+
+    def get_hackathon(self,obj):
+        serializer = HackathonSerializer(obj.hackathon)
+        return serializer.data
+
+    def get_team(self, obj):
+        serializer = TeamSerializer(obj.team)
+        return serializer.data
+
+    class Meta:
+        model = Submission
+        fields = ('team', 'hackathon', 'score', 'description')
+        read_only_fields = ['score']
+        depth = 1
