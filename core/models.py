@@ -10,6 +10,8 @@ class Hackathon(models.Model):
     A model representing a Hackathon
     """
     title = models.CharField(max_length=100, unique=True)
+    tagline = models.CharField(max_length=100, default='')
+    description = models.CharField(max_length=400, default='')
     start = models.DateTimeField(auto_now_add=False)
     end = models.DateTimeField(auto_now_add=False)
     image = models.CharField(null=True, blank=True, max_length=200)
