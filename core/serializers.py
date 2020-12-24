@@ -79,6 +79,8 @@ class JoinTeamSerializer(serializers.Serializer):
             members.add(user)
 
 class HackathonSerializer(serializers.ModelSerializer):
+    status = serializers.CharField()
+
     def validate_end(self, end):
         if end < timezone.now():
             raise serializers.ValidationError('End date cannot be in past')
@@ -94,7 +96,7 @@ class HackathonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hackathon
-        fields = ('title','start','end','status','image','results_declared','max_team_size','slug')
+        fields = '__all__'
 
 
 class SubmissionsSerializer(serializers.ModelSerializer):
