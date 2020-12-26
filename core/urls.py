@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import  HackathonsRUDView, HackathonListCreateView, HackathonTeamView, JoinTeamView, HackathonSubmissionView, TeamView, MemberExitView, SubmissionRUDView
+from .views import  HackathonsRUDView, HackathonListCreateView, HackathonTeamView, JoinTeamView, HackathonSubmissionView, TeamView, MemberExitView, SubmissionRUDView, HackathonSlugView
 
 urlpatterns = [
     path('hackathons/<int:pk>/teams/', HackathonTeamView.as_view()),
@@ -9,5 +9,6 @@ urlpatterns = [
     path('hackathons/<int:pk>/submissions/', HackathonSubmissionView.as_view()),
     path('teams/<str:team_id>/', TeamView.as_view(), name='Team Read, Edit, Delete View'),
     path('teams/<str:team_id>/member-exit/<str:username>', MemberExitView.as_view()),
-    path('submissions/<int:id>/', SubmissionRUDView.as_view(), name='Submission Read, Edit and Delete View')
+    path('submissions/<int:id>/', SubmissionRUDView.as_view(), name='Submission Read, Edit and Delete View'),
+    path('hackathon/<slug:slug>/', HackathonSlugView.as_view(), name='Hackathon Slug to Id'),
 ]
