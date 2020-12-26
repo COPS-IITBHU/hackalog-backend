@@ -126,7 +126,7 @@ class MemberExitSerializer(serializers.Serializer):
             try:
                 member = User.objects.get(username=username)
             except User.DoesNotExist:
-                raise exceptions.ValidationError(detail='No user with given username')
+                raise exceptions.NotFound(detail='No user with given username')
             members = team.members
             if member not in members.all():
                 raise exceptions.ValidationError(detail='Already not in team')

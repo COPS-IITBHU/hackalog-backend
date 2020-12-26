@@ -56,7 +56,7 @@ class JoinTeamView(generics.GenericAPIView):
     Join a team with team_id and hackathon_id
     """
     serializer_class = JoinTeamSerializer
-
+    permission_classes = [permissions.IsAuthenticated, AllowCompleteProfile]
     def get_queryset(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
