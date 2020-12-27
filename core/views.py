@@ -283,3 +283,12 @@ class SubmissionRUDView(generics.RetrieveUpdateDestroyAPIView):
                 raise exceptions.PermissionDenied(detail="Hackathon is not started yet")
         else:
             raise exceptions.NotFound("Submission does not exist!")
+
+
+class HackathonSlugView(generics.RetrieveAPIView):
+    '''
+    API to retrieve Hackathon Objects from their slug
+    '''
+    serializer_class = HackathonSerializer
+    lookup_field = 'slug'
+    queryset = Hackathon.objects.all()
