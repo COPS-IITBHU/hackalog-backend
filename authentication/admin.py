@@ -9,7 +9,7 @@ class MyUserChangeForm(UserChangeForm):
 class MyUserAdmin(UserAdmin):
     form = MyUserChangeForm
     fieldsets = UserAdmin.fieldsets + (
-        ('Additional Fields', {'fields': ('uid', 'name', 'college', 'github_handle', 'bio', 'interests')}),
+        ('Additional Fields', {'fields': ('uid', 'name', 'college', 'github_handle', 'bio', 'interests','photoURL')}),
     )
     add_fieldsets = (
         (None, {
@@ -18,5 +18,5 @@ class MyUserAdmin(UserAdmin):
         }),
     )
     list_display = ('uid', 'username', 'github_handle', 'name', 'email', 'is_staff')
-    search_fields = ('username', 'github_handle', 'name', 'email')
+    search_fields = ('username', 'github_handle', 'name', 'email','photoURL')
 admin.site.register(User, MyUserAdmin)

@@ -15,6 +15,7 @@ class User(AbstractUser):
   github_handle = models.CharField(max_length=255)
   bio = models.TextField()
   interests = models.TextField()
+  photoURL = models.URLField(max_length = 400,default="") 
 
   USERNAME_FIELD = 'uid'
   REQUIRED_FIELDS = ['username']
