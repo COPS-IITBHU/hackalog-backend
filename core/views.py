@@ -1,3 +1,4 @@
+from django.db import reset_queries
 from rest_framework import generics, status, permissions, exceptions
 from rest_framework.response import Response
 from django.utils import timezone
@@ -128,8 +129,11 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
 
 class HackathonSubmissionView(generics.ListCreateAPIView):
     """
-    API used to get the list of all the submissions of particular hackathon
-    and create submission for the hackathon
+    API to handle GET and POST for submission. For GET method:
+    (i) Superuser can get all submissions (in any case).
+    (ii) For ongoing hackathon authenticated users will get submissions of their team.
+    (iii) For ongoing hackathon unauthenticated users will get ERROR 401 Unauthorized.
+    (iv) If hackathon is not ongoing then anyone(even unauthenticated) will get all the submissions.
     """
     serializer_class = SubmissionsSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -139,18 +143,25 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
             return None
         try:
             hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
-            user = self.request.user
-            if hackathon.status!="Completed" and not self.request.user.is_superuser:
-                try:
-                    team = Team.objects.get(members=user, hackathon= hackathon)
-                except:
-                    raise exceptions.NotFound("Team does not exist!")
-                queryset=Submission.objects.filter(team=team)
-                return queryset
-            queryset = Submission.objects.filter(hackathon=self.kwargs['pk'])
-            return queryset
         except Hackathon.DoesNotExist:
-            raise exceptions.NotFound("Hackathon does not exist!")
+            raise exceptions.NotFound("Hackathon does not exists!")
+        else:
+            user = self.request.user
+            if hackathon.status == "Ongoing":
+                if user.is_authenticated:
+                    if user.is_superuser:
+                        return Submission.objects.filter(hackathon=hackathon)
+                    else:
+                        try:
+                            team = Team.objects.get(members=user, hackathon=hackathon)
+                        except Team.DoesNotExist:
+                            raise exceptions.NotFound("Team does not exists!")
+                        else:
+                            return Submission.objects.filter(hackathon=hackathon, team=team)
+                else:
+                    raise exceptions.NotAuthenticated(detail="Authentication is required to get submissions of ongoing hackathon!")
+            else:
+                return Submission.objects.filter(hackathon=hackathon)
 
     def create(self, request, *args, **kwargs):
         try:
