@@ -104,7 +104,7 @@ class HackathonSerializer(serializers.ModelSerializer):
         '''
         request = self.context['request']
         if not request.auth:
-            return 'none'
+            return False
         teams = Team.objects.filter(members=request.user, hackathon=obj)
         submissions = []
         for team in teams:
