@@ -80,7 +80,6 @@ class JoinTeamSerializer(serializers.Serializer):
 
 class HackathonSerializer(serializers.ModelSerializer):
     status = serializers.CharField()
-    userStatus = serializers.SerializerMethodField('get_userStatus')
 
     def validate_end(self, end):
         if end < timezone.now():
@@ -96,6 +95,13 @@ class HackathonSerializer(serializers.ModelSerializer):
         if attrs['start'] > attrs['end']:
             raise serializers.ValidationError('Event ends before starting')
         return attrs
+
+    class Meta:
+        model = Hackathon
+        fields = '__all__'
+
+class HackathonDetailSerializer(HackathonSerializer):
+    userStatus = serializers.SerializerMethodField('get_userStatus')
 
     def get_userStatus(self, obj):
         '''
@@ -116,10 +122,6 @@ class HackathonSerializer(serializers.ModelSerializer):
         elif not len(submissions):
             return 'registered'
         return 'submitted'
-
-    class Meta:
-        model = Hackathon
-        fields = '__all__'
 
 
 class SubmissionsSerializer(serializers.ModelSerializer):
