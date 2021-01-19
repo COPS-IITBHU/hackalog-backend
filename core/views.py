@@ -7,7 +7,7 @@ from django.shortcuts import get_list_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team, Submission
-from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer, MemberExitSerializer, SubmissionRUDSerializer
+from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer, MemberExitSerializer, SubmissionRUDSerializer,HackathonDetailSerializer
 from .permissions import HackathonPermissions, AllowCompleteProfile, IsLeaderOrSuperUser
 from authentication.serializers import ProfileSerializer
 
@@ -122,7 +122,7 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     """
 
     permission_classes = [HackathonPermissions]
-    serializer_class = HackathonSerializer
+    serializer_class = HackathonDetailSerializer
     lookup_field = 'pk'
     queryset = Hackathon.objects.all()
 
