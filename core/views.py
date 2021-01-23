@@ -19,7 +19,11 @@ class HackathonTeamView(generics.ListCreateAPIView):
     post:
     Creates a new team in a hackathon and return the team_id
     """
-    permission_classes = [permissions.IsAuthenticated, AllowCompleteProfile]
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAuthenticated, AllowCompleteProfile]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
