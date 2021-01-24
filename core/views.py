@@ -19,7 +19,11 @@ class HackathonTeamView(generics.ListCreateAPIView):
     post:
     Creates a new team in a hackathon and return the team_id
     """
-    permission_classes = [permissions.IsAuthenticated, AllowCompleteProfile]
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAuthenticated, AllowCompleteProfile]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -200,7 +204,7 @@ class TeamView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method == "GET":
-            return [permissions.IsAuthenticated()]
+            return [permissions.AllowAny()]
         else:
             return [permissions.IsAuthenticated(), IsLeaderOrSuperUser()]
 
@@ -264,8 +268,13 @@ class SubmissionRUDView(generics.RetrieveUpdateDestroyAPIView):
     API used to read, update and delete the particular submissions of particular hackathon.
     """
     serializer_class = SubmissionRUDSerializer
-    permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'id'
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAuthenticated()]
 
     def get_queryset(self, **kwargs):
         if getattr(self, 'swagger_fake_view', False):
@@ -285,6 +294,8 @@ class SubmissionRUDView(generics.RetrieveUpdateDestroyAPIView):
                     except Team.DoesNotExist:
                         raise exceptions.PermissionDenied(detail="Not the member of registered Team")
             elif hackathon.status == 'Ongoing':
+                if not user:
+                    raise exceptions.PermissionDenied(detail="Must be Logged in to view ongoing submissions")
                 try:
                     team = Team.objects.get(members=user, hackathon=hackathon)
                     return queryset

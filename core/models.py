@@ -17,7 +17,7 @@ class Hackathon(models.Model):
     image = models.CharField(null=True, blank=True, max_length=200)
     results_declared = models.BooleanField(default=False)
     max_team_size = models.IntegerField(default=10)
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
 
     @property
     def status(self):

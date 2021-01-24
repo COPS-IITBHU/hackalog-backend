@@ -176,4 +176,3 @@ class SubmissionRUDSerializer(serializers.ModelSerializer):
         model = Submission
         fields = ('team', 'hackathon', 'score', 'description')
         read_only_fields = ['score']
-        depth = 1
