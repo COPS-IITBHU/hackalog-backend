@@ -23,7 +23,7 @@ class HackathonTeamView(generics.ListCreateAPIView):
         if self.request.method == "GET":
             return [permissions.AllowAny()]
         else:
-            return [permissions.IsAuthenticated, AllowCompleteProfile]
+            return [permissions.IsAuthenticated(), AllowCompleteProfile()]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -41,10 +41,10 @@ class HackathonTeamView(generics.ListCreateAPIView):
         if getattr(self, 'swagger_fake_view', False):
             return None
         try:
-            hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
+            hackathon = Hackathon.objects.get(slug=self.kwargs['slug'])
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exist!")
-        queryset = Team.objects.filter(hackathon=self.kwargs['pk'])
+        queryset = Team.objects.filter(hackathon=hackathon)
         return queryset
 
     def post(self, request, **kwargs):
