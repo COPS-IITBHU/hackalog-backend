@@ -147,7 +147,7 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
         if getattr(self, 'swagger_fake_view', False):
             return None
         try:
-            hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
+            hackathon = Hackathon.objects.get(slug=self.kwargs['slug'])
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exists!")
         else:
