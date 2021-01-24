@@ -122,12 +122,13 @@ class HackathonListCreateView(generics.ListCreateAPIView):
 
 class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
     """
-    API used to read, update or delete the hackathon objects by their id. Only the Super User has the permissions to update or delete hackathon objects.
+    API used to read, update or delete the hackathon objects by their id.
+    Only the Super User has the permissions to update or delete hackathon objects.
     """
 
     permission_classes = [HackathonPermissions]
     serializer_class = HackathonDetailSerializer
-    lookup_field = 'pk'
+    lookup_field = 'slug'
     queryset = Hackathon.objects.all()
 
 
@@ -305,12 +306,3 @@ class SubmissionRUDView(generics.RetrieveUpdateDestroyAPIView):
                 raise exceptions.PermissionDenied(detail="Hackathon is not started yet")
         else:
             raise exceptions.NotFound("Submission does not exist!")
-
-
-class HackathonSlugView(generics.RetrieveAPIView):
-    '''
-    API to retrieve Hackathon Objects from their slug
-    '''
-    serializer_class = HackathonSerializer
-    lookup_field = 'slug'
-    queryset = Hackathon.objects.all()
