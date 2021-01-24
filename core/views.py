@@ -170,7 +170,7 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         try:
-            hackathon = Hackathon.objects.get(id=self.kwargs['pk'])
+            hackathon = Hackathon.objects.get(slug=self.kwargs['slug'])
             # The default score should remain zero
             # even if user has passed any other value
             if 'score' in request.data:
@@ -178,13 +178,17 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
             if hackathon.status != "Ongoing":
                 return Response("Submissions can only be made to Ongoing Hackathons", status=status.HTTP_400_BAD_REQUEST)
             team = Team.objects.get(members=request.user, hackathon=hackathon)
-            if request.data['team'] != team.pk:
+            if request.data['team'] != team.team_id:
                 return Response("You can make submission only for your team", status=status.HTTP_400_BAD_REQUEST)
             submission = Submission.objects.filter(
                 team=team, hackathon=hackathon)
             if len(submission):
                 return Response("A Submission Already Exists!", status=status.HTTP_400_BAD_REQUEST)
-            request.data['hackathon'] = self.kwargs['pk']
+            # As we are using id as pk for hackathon, and slug for routing
+            # so due to foreign key constraints we need to change request data to contain hackathon pk.
+            #Similar reason for team.
+            request.data['hackathon'] = hackathon.pk
+            request.data['team'] = team.pk
 
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exist!")
