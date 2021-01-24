@@ -204,7 +204,7 @@ class TeamView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method == "GET":
-            return [permissions.IsAuthenticated()]
+            return [permissions.AllowAny()]
         else:
             return [permissions.IsAuthenticated(), IsLeaderOrSuperUser()]
 

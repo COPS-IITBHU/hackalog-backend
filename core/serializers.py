@@ -13,7 +13,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ('id','name','score','hackathon','team_id','members')
+        fields = ('id','name','score','hackathon','team_id')
         depth = 1
 
 class TeamCreateSerializer(serializers.ModelSerializer):
@@ -176,4 +176,3 @@ class SubmissionRUDSerializer(serializers.ModelSerializer):
         model = Submission
         fields = ('team', 'hackathon', 'score', 'description')
         read_only_fields = ['score']
-        depth = 2
