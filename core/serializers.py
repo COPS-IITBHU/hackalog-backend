@@ -20,10 +20,10 @@ class TeamCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         name = attrs['name']
-        hackathon_id = self.context['kwargs']['pk']
+        hackathon_slug = self.context['kwargs']['slug']
         user = self.context['request'].user
         try:
-            hackathon = Hackathon.objects.get(id=hackathon_id)
+            hackathon = Hackathon.objects.get(slug=hackathon_slug)
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound(detail="Hackathon does not exist!")
         try:
@@ -45,8 +45,8 @@ class TeamCreateSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         leader = user
         members = [user]
-        hackathon_id = self.context['kwargs']['pk']
-        hackathon = Hackathon.objects.get(id=hackathon_id)
+        hackathon_slug = self.context['kwargs']['slug']
+        hackathon = Hackathon.objects.get(slug=hackathon_slug)
         team = Team.objects.create(name=data['name'], hackathon=hackathon, leader=leader, team_id=get_random_string(16))
         team.members.set(members)
         team.save()
@@ -58,10 +58,10 @@ class TeamCreateSerializer(serializers.ModelSerializer):
 class JoinTeamSerializer(serializers.Serializer):
 
     def join_team(self):
-        hackathon_id = self.context['kwargs']['pk']
+        hackathon_slug = self.context['kwargs']['slug']
         team_id = self.context['kwargs']['team_id']
         try:
-            hackathon = Hackathon.objects.get(id=hackathon_id)
+            hackathon = Hackathon.objects.get(slug=hackathon_slug)
             team = Team.objects.get(team_id=team_id, hackathon=hackathon)
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound(detail="Hackathon does not exist!")
