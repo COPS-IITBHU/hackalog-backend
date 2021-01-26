@@ -134,11 +134,18 @@ class HackathonsRUDView(generics.RetrieveUpdateDestroyAPIView):
 
 class HackathonSubmissionView(generics.ListCreateAPIView):
     """
-    API to handle GET and POST for submission. For GET method:
+    API to handle GET and POST for submission.
+    For GET method:
     (i) Superuser can get all submissions (in any case).
     (ii) For ongoing hackathon authenticated users will get submissions of their team.
     (iii) For ongoing hackathon unauthenticated users will get ERROR 401 Unauthorized.
     (iv) If hackathon is not ongoing then anyone(even unauthenticated) will get all the submissions.
+    For POST method:
+    Data that should be send is:
+    (i) team_id(joining code)
+    (ii) submission_url(url where code is hosted)
+    (iii) title of submission(generally title of project)
+    (iv) description of submission(generally description of project)
     """
     serializer_class = SubmissionsSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
