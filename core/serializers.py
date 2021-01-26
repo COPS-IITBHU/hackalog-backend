@@ -174,5 +174,5 @@ class SubmissionRUDSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = ('team', 'hackathon', 'score', 'description')
+        fields = ('title', 'team', 'review', 'hackathon', 'submission_url', 'score', 'description')
         read_only_fields = ['score']
