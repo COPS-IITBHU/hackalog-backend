@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import Hackathon, Link, Submission, Team
+from .models import Hackathon, Submission, Team
 admin.site.register(Hackathon)
-admin.site.register(Link)
 admin.site.register(Submission)
 
 class TeamsPageAdmin(admin.ModelAdmin):

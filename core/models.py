@@ -67,20 +67,10 @@ class Submission(models.Model):
     hackathon = models.ForeignKey(Hackathon, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now=True)
     score = models.IntegerField(default=0, validators=[MaxValueValidator(100)])
-    description = models.TextField()
+    title = models.CharField(default="No title provided", max_length=150)
+    submission_url = models.URLField(max_length=200)
+    review = models.TextField(blank=True)
+    description = models.TextField(default="No description provided")
 
     def __str__(self):
         return f'{self.team.name}\'s Submission'
-
-
-class Link(models.Model):
-    """
-    A model to hold link for refrences and resources for a submission.
-    """
-    url = models.URLField(max_length=200)
-    title = models.CharField(default="No title provided.", max_length=100)
-    submission = models.ForeignKey(
-        Submission, on_delete=models.CASCADE, related_name="links")
-
-    def __str__(self):
-        return self.title
