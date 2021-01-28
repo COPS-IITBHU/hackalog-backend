@@ -125,6 +125,19 @@ class HackathonDetailSerializer(HackathonSerializer):
 
 
 class SubmissionsSerializer(serializers.ModelSerializer):
+    teamName = serializers.SerializerMethodField('get_teamName')
+    
+    def get_teamName(self, obj):
+        '''
+        Serializer Field to show team name 
+        without the need of full team details
+        '''
+        try:
+            team = Team.objects.get(pk = obj.team_id)
+        except Team.DoesNotExist:
+            raise exceptions.ValidationError(detail='Team does not exists.') 
+        return team.name
+
     class Meta:
         model = Submission
         fields = '__all__'
