@@ -11,7 +11,13 @@ from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializ
 from .permissions import HackathonPermissions, AllowCompleteProfile, IsLeaderOrSuperUser
 from authentication.serializers import ProfileSerializer
 
+query_param = openapi.Parameter(
+    'user_specific', openapi.IN_QUERY, 
+    description="Query parameter - Returns all teams of hackathons if user_specific value is not specified.\nTo get team of a user pass user_specific=[y, Y, True]",
+    type=openapi.TYPE_STRING, enum=['y', 'Y', 'True']
+)
 
+@method_decorator(name="get", decorator=swagger_auto_schema(manual_parameters=[query_param]))
 class HackathonTeamView(generics.ListCreateAPIView):
     """
     get:
@@ -20,8 +26,12 @@ class HackathonTeamView(generics.ListCreateAPIView):
     Creates a new team in a hackathon and return the team_id
     """
     def get_permissions(self):
+        user_specific = self.request.query_params.get('user_specific', None)
         if self.request.method == "GET":
-            return [permissions.AllowAny()]
+            if user_specific in ['y', 'Y', 'True']:
+                return [permissions.IsAuthenticated()]
+            else:
+                return [permissions.AllowAny()]
         else:
             return [permissions.IsAuthenticated(), AllowCompleteProfile()]
 
@@ -38,13 +48,17 @@ class HackathonTeamView(generics.ListCreateAPIView):
         }
 
     def get_queryset(self, **kwargs):
+        user_specific = self.request.query_params.get('user_specific', None)
         if getattr(self, 'swagger_fake_view', False):
             return None
         try:
             hackathon = Hackathon.objects.get(slug=self.kwargs['slug'])
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exist!")
-        queryset = Team.objects.filter(hackathon=hackathon)
+        if user_specific in ['y', 'Y', 'True']:
+            queryset = Team.objects.filter(hackathon=hackathon, members=self.request.user)
+        else:
+            queryset = Team.objects.filter(hackathon=hackathon)
         return queryset
 
     def post(self, request, **kwargs):

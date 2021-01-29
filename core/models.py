@@ -49,12 +49,6 @@ class Team(models.Model):
     class Meta:
         unique_together = ("name", "hackathon")
 
-    @property
-    def score(self):
-        if(self.hackathon.status!="Completed"):
-            return "NA"
-        return self.submission.score
-
     def __str__(self):
         return self.name
 

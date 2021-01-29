@@ -26,7 +26,8 @@ class LoginSerializer(serializers.Serializer):
         else:
             email = FirebaseAPI.get_email(jwt)
             name = FirebaseAPI.get_name(jwt)
-            profile = User.objects.create(uid = uid,name = name, email = email)
+            # We keep username=uid untill user explicitly provides it from frontend.
+            profile = User.objects.create(uid = uid,name = name, email = email, username=uid)
             current_user = profile
 
         data['profile'] = current_user

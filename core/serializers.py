@@ -13,7 +13,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ('id','name','score','hackathon','team_id')
+        fields = ('id', 'name', 'hackathon', 'team_id')
         depth = 1
 
 class TeamCreateSerializer(serializers.ModelSerializer):
