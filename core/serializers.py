@@ -204,7 +204,7 @@ class SubmissionRUDSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def get_team(self, obj):
-        serializer = TeamSerializer(obj.team)
+        serializer = TeamDetailSerializer(obj.team)
         return serializer.data
 
     class Meta:

@@ -7,7 +7,7 @@ from django.shortcuts import get_list_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team, Submission
-from .serializers import HackathonSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer, MemberExitSerializer, SubmissionRUDSerializer,HackathonDetailSerializer
+from .serializers import HackathonSerializer, TeamDetailSerializer, TeamSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer, MemberExitSerializer, SubmissionRUDSerializer,HackathonDetailSerializer
 from .permissions import HackathonPermissions, AllowCompleteProfile, IsLeaderOrSuperUser
 from authentication.serializers import ProfileSerializer
 
@@ -37,7 +37,7 @@ class HackathonTeamView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return TeamSerializer
+            return TeamDetailSerializer
         else:
             return TeamCreateSerializer
 
@@ -234,7 +234,7 @@ class TeamView(generics.RetrieveUpdateDestroyAPIView):
         else:
             return [permissions.IsAuthenticated(), IsLeaderOrSuperUser()]
 
-    serializer_class = TeamSerializer
+    serializer_class = TeamDetailSerializer
     queryset = Team.objects.all()
     lookup_field = 'team_id'
 
