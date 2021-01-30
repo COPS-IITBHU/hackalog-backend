@@ -3,8 +3,12 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from .models import Hackathon, Team, Submission
 from authentication.models import User
+from authentication import serializers as auth_serializer
 
 class TeamSerializer(serializers.ModelSerializer):
+    """
+    This Serailizer serializes Team objects but it does not include members and details. 
+    """
     hackathon = serializers.SerializerMethodField()
 
     def get_hackathon(self,obj):
@@ -15,6 +19,24 @@ class TeamSerializer(serializers.ModelSerializer):
         model = Team
         fields = ('id', 'name', 'hackathon', 'team_id')
         depth = 1
+
+class TeamDetailSerializer(TeamSerializer):
+    """
+    This Serailizer serializes Team Details along with its members and leader profile.
+    """
+    members = serializers.SerializerMethodField()
+    leader = serializers.SerializerMethodField()
+
+    def get_members(self, obj):
+        serializer = auth_serializer.ProfileSerializer(obj.members, many=True)
+        return serializer.data
+
+    def get_leader(self, obj):
+        serializer = auth_serializer.ProfileSerializer(obj.leader)
+        return serializer.data
+    class Meta:
+        model = Team
+        fields = ('id', 'name', 'hackathon', 'team_id', 'members', 'leader')
 
 class TeamCreateSerializer(serializers.ModelSerializer):
 
