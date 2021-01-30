@@ -7,9 +7,21 @@ from django.shortcuts import get_list_or_404
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Hackathon, Team, Submission
-from .serializers import HackathonSerializer, TeamDetailSerializer, TeamCreateSerializer, JoinTeamSerializer, SubmissionsSerializer, MemberExitSerializer, SubmissionRUDSerializer,HackathonDetailSerializer
-from .permissions import HackathonPermissions, AllowCompleteProfile, IsLeaderOrSuperUser
-from authentication.serializers import ProfileSerializer
+from .serializers import (
+    HackathonSerializer,
+    TeamDetailSerializer,
+    TeamCreateSerializer,
+    JoinTeamSerializer,
+    SubmissionsSerializer,
+    MemberExitSerializer,
+    SubmissionRUDSerializer,
+    HackathonDetailSerializer
+)
+from .permissions import (
+    HackathonPermissions,
+    AllowCompleteProfile,
+    IsLeaderOrSuperUser
+)
 
 query_param = openapi.Parameter(
     'user_specific', openapi.IN_QUERY, 
@@ -215,6 +227,8 @@ class HackathonSubmissionView(generics.ListCreateAPIView):
             raise exceptions.NotFound("Hackathon does not exist!")
         except Team.DoesNotExist:
             raise exceptions.NotFound("Team does not exist!")
+        except KeyError as e:
+            return Response("Improper data found.", status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
