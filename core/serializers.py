@@ -90,6 +90,8 @@ class JoinTeamSerializer(serializers.Serializer):
         except Team.DoesNotExist:
             raise exceptions.NotFound(detail="Team does not exist!")
         user = self.context['request'].user
+        if team.members.count() >= hackathon.max_team_size:
+            raise exceptions.ValidationError(detail="Team is full!")
         team_qs = Team.objects.filter(hackathon=hackathon, members= user)
         if team_qs.exists():
             print('team_qs =', team_qs)
