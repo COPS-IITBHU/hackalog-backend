@@ -3,6 +3,7 @@
 # Edit at https://www.gitignore.io/?templates=django
 
 firebase_admin.json
+firebase_admin.aes
 
 ### Django ###
 *.log
