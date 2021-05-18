@@ -25,6 +25,7 @@ pyAesCrypt.encryptFile("firebase_admin.json", "firebase_admin.aes", password, bu
 * Keep this `firebase_admin.aes` file inside the project at `manage.py` level.
 * At the same directory level create a file named `.env` and put contents into it by copying from another file named `template_env` which is already present.
 * In your `.env` put value of `FIREBASE_DECRYPT_KEY` as the password you used for encrypting.
+* Similarly update the value of `FIREBASE_DECRYPT_SIZE` as based on what you get as output.
 
 You have successfully created required environment variables.
 
