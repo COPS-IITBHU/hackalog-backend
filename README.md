@@ -2,7 +2,7 @@
 
 ## Instructions for setting up this project
 * Fork and clone the project in your device.
-* `pipenv shell`
+* `pipenv shell`(If you're not aware of what pipenv, have look at [this blog](https://realpython.com/pipenv-guide/)).
 * `pipenv install`
 
 #### Creating and securing firebase credentials
@@ -11,21 +11,13 @@ done only once for setting up your `.env` file.
 * Go to [Firebase console](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk) and create a firebase project.
 * In firebase console go to **settings > [Service accounts](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk)**
 * Click Generate New Private Key, then confirm by clicking Generate Key.
-* Securely store the JSON file containing the key. Encrypt your Json file containing key using steps code given below:
-* **Below code will generate a file named `firebase_admin.aes`, so if you already have this file(as it was present earlier on the repo) you may delete that file and then run below code.**.
-
-```python
-import pyAesCrypt
-bufferSize = 64 * 1024
-password = "please-use-a-long-and-random-password"
-# encrypt
-# Here firebase_admin.json is the name of Json file you get from from firebase.
-pyAesCrypt.encryptFile("firebase_admin.json", "firebase_admin.aes", password, bufferSize)
-```
-* Keep this `firebase_admin.aes` file inside the project at `manage.py` level.
-* At the same directory level create a file named `.env` and put contents into it by copying from another file named `template_env` which is already present.
-* In your `.env` put value of `FIREBASE_DECRYPT_KEY` as the password you used for encrypting.
-* Similarly update the value of `FIREBASE_DECRYPT_SIZE` as based on what you get as output.
+* Save the Json file containing key details, with name `firebase_admin.json` in same level directory as manage.py.
+* Open a file named `encrypt_credentials.py` already present in same directory, and **edit the password(line: 6) you want to use for encryption**.
+**Note:** You are advised to use long and random password, as you do not need to remember it after that.
+* Run `python encrypt_credentials.py` to encrypt your Json file. This will generate a file named `firebase_admin.aes` and will also print `FIREBASE_DECRYPT_SIZE` in the output.
+* Create a file named `.env` and copy contents into it from another file named `template_env` which is already present.
+* In your `.env` file put the value of `FIREBASE_DECRYPT_KEY` as the password you used for encryption, and `FIREBASE_DECRYPT_SIZE` as the number generated in output that came after encrypting the file.
+* Undo the changes you made to encrypt_credentials.py(that is again make the password as `please-use-a-long-random-password`), **otherwise your encryption key(password) will become public**.
 
 You have successfully created required environment variables.
 
