@@ -49,13 +49,13 @@ class TeamCreateSerializer(serializers.ModelSerializer):
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound(detail="Hackathon does not exist!")
         try:
-            team = Team.objects.get(hackathon=hackathon, members=user)
+            team = Team.objects.select_related('leader', 'members', 'hackathon').get(hackathon=hackathon, members=user)
         except:
             pass
         else:
             raise exceptions.ValidationError(detail="You are already part of a team in this hackathon.")
         try:
-            team = Team.objects.get(hackathon=hackathon, name=name)
+            team = Team.objects.select_related('leader', 'members', 'hackathon').get(hackathon=hackathon, name=name)
         except:
             pass
         else:
@@ -84,7 +84,7 @@ class JoinTeamSerializer(serializers.Serializer):
         team_id = self.context['kwargs']['team_id']
         try:
             hackathon = Hackathon.objects.get(slug=hackathon_slug)
-            team = Team.objects.get(team_id=team_id, hackathon=hackathon)
+            team = Team.objects.select_related('leader', 'members', 'hackathon').get(team_id=team_id, hackathon=hackathon)
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound(detail="Hackathon does not exist!")
         except Team.DoesNotExist:
@@ -92,7 +92,7 @@ class JoinTeamSerializer(serializers.Serializer):
         user = self.context['request'].user
         if team.members.count() >= hackathon.max_team_size:
             raise exceptions.ValidationError(detail="Team is full!")
-        team_qs = Team.objects.filter(hackathon=hackathon, members= user)
+        team_qs = Team.objects.select_related('leader', 'members', 'hackathon').filter(hackathon=hackathon, members= user)
         if team_qs.exists():
             print('team_qs =', team_qs)
             raise exceptions.ValidationError(detail="You are already part of some team in this hackathon.")
@@ -135,11 +135,11 @@ class HackathonDetailSerializer(HackathonSerializer):
         request = self.context['request']
         if not request.auth:
             return False
-        teams = Team.objects.filter(members=request.user, hackathon=obj)
+        teams = Team.objects.select_related('leader', 'members', 'hackathon').filter(members=request.user, hackathon=obj)
         submissions = []
         for team in teams:
             submissions.extend(
-                Submission.objects.filter(hackathon=obj, team=team)
+                Submission.objects.select_related('team', 'hackathon', 'team__leader', 'team__members', 'team__hackathon').filter(hackathon=obj, team=team)
             )
         if not teams.count():
             return 'not registered'
@@ -157,7 +157,7 @@ class SubmissionsSerializer(serializers.ModelSerializer):
         without the need of full team details
         '''
         try:
-            team = Team.objects.get(pk = obj.team_id)
+            team = Team.objects.select_related('leader', 'members', 'hackathon').get(pk = obj.team_id)
         except Team.DoesNotExist:
             raise exceptions.ValidationError(detail='Team does not exists.') 
         return team.name
@@ -176,7 +176,7 @@ class MemberExitSerializer(serializers.Serializer):
     def exit_team(self):
         team_id = self.context['kwargs']['team_id']
         try:
-            team = Team.objects.get(team_id=team_id)
+            team = Team.objects.select_related('leader', 'members', 'hackathon').get(team_id=team_id)
         except Team.DoesNotExist:
             raise exceptions.ValidationError(detail='Team does not exists.')
         user = self.context['request'].user  # requesting user
