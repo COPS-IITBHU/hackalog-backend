@@ -68,9 +68,9 @@ class HackathonTeamView(generics.ListCreateAPIView):
         except Hackathon.DoesNotExist:
             raise exceptions.NotFound("Hackathon does not exist!")
         if user_specific in ['y', 'Y', 'True']:
-            queryset = Team.objects.filter(hackathon=hackathon, members=self.request.user)
+            queryset = Team.objects.filter(hackathon=hackathon, members=self.request.user).select_related('leader').prefetch_related('members')
         else:
-            queryset = Team.objects.filter(hackathon=hackathon)
+            queryset = Team.objects.filter(hackathon=hackathon).select_related('leader').prefetch_related('members')
         return queryset
 
     def post(self, request, **kwargs):
@@ -249,7 +249,7 @@ class TeamView(generics.RetrieveUpdateDestroyAPIView):
             return [permissions.IsAuthenticated(), IsLeaderOrSuperUser()]
 
     serializer_class = TeamDetailSerializer
-    queryset = Team.objects.all()
+    queryset = Team.objects.all().select_related('leader').prefetch_related('members')
     lookup_field = 'team_id'
 
 class MemberExitView(generics.GenericAPIView):
@@ -291,7 +291,7 @@ class SubmissionRUDView(generics.RetrieveUpdateDestroyAPIView):
         if getattr(self, 'swagger_fake_view', False):
             return None
 
-        queryset = Submission.objects.filter(id=self.kwargs['id'])
+        queryset = Submission.objects.filter(id=self.kwargs['id']).select_related('team', 'hackathon')
         user = self.request.user
         if queryset:
             hackathon = Hackathon.objects.get(id=queryset[0].hackathon_id)
