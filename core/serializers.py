@@ -176,7 +176,7 @@ class MemberExitSerializer(serializers.Serializer):
     def exit_team(self):
         team_id = self.context['kwargs']['team_id']
         try:
-            team = Team.objects.get(team_id=team_id)
+            team = Team.objects.select_related('hackathon', 'leader').get(team_id=team_id)
         except Team.DoesNotExist:
             raise exceptions.ValidationError(detail='Team does not exists.')
         user = self.context['request'].user  # requesting user

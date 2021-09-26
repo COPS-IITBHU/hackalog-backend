@@ -37,11 +37,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     teams = serializers.SerializerMethodField()
 
     def get_teams(self,obj):
-        team = Team.objects.filter(members=obj)
+        team = Team.objects.filter(members=obj).select_related('hackathon')
         serializer = TeamSerializer(team,many=True)
         return serializer.data
 
-    class Meta:
+    class Meta:        
         User = get_user_model()
         model = User
         fields = ('name','username', 'college', 'github_handle', 'bio', 'interests','photoURL','teams','email')
